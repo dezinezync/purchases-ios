@@ -190,7 +190,7 @@ class BackendTests: XCTestCase {
                                               "is_restore": isRestore,
                                               "observer_mode": observerMode],
                                        headers: ["Authorization": "Bearer " + apiKey])
-        expect(self.httpClient.calls.count).to(equal(1))
+        expect(self.httpClient.calls.count).toEventually(equal(1))
         if self.httpClient.calls.count > 0 {
             let call = self.httpClient.calls[0]
 
@@ -235,7 +235,7 @@ class BackendTests: XCTestCase {
             completionCalled += 1
         })
 
-        expect(self.httpClient.calls.count).to(equal(1))
+        expect(self.httpClient.calls.count).toEventually(equal(1))
         expect(completionCalled).toEventually(equal(2))
     }
 
@@ -270,7 +270,7 @@ class BackendTests: XCTestCase {
             completionCalled += 1
         })
 
-        expect(self.httpClient.calls.count).to(equal(2))
+        expect(self.httpClient.calls.count).toEventually(equal(2))
         expect(completionCalled).toEventually(equal(2))
     }
 
@@ -305,7 +305,7 @@ class BackendTests: XCTestCase {
             completionCalled += 1
         })
 
-        expect(self.httpClient.calls.count).to(equal(2))
+        expect(self.httpClient.calls.count).toEventually(equal(2))
         expect(completionCalled).toEventually(equal(2))
     }
 
@@ -341,7 +341,7 @@ class BackendTests: XCTestCase {
             completionCalled += 1
         })
 
-        expect(self.httpClient.calls.count).to(equal(2))
+        expect(self.httpClient.calls.count).toEventually(equal(2))
         expect(completionCalled).toEventually(equal(2))
     }
 
@@ -376,18 +376,18 @@ class BackendTests: XCTestCase {
             completionCalled += 1
         })
 
-        expect(self.httpClient.calls.count).to(equal(2))
+        expect(self.httpClient.calls.count).toEventually(equal(2))
         expect(completionCalled).toEventually(equal(2))
     }
 
     func testCachesSubscriberGetsForSameSubscriber() {
         let response = HTTPResponse(statusCode: 200, response: validSubscriberResponse, error: nil)
         httpClient.mock(requestPath: "/subscribers/" + userID, response: response)
-
-        backend?.getSubscriberData(appUserID: userID) { _, _ in }
-        backend?.getSubscriberData(appUserID: userID) { _, _ in }
-
-        expect(self.httpClient.calls.count).to(equal(1))
+        
+        backend?.getSubscriberData(appUserID: userID) { _,_ in }
+        backend?.getSubscriberData(appUserID: userID) { _,_ in }
+        
+        expect(self.httpClient.calls.count).toEventually(equal(1))
     }
 
     func testDoesntCacheSubscriberGetsForSameSubscriber() {
@@ -399,8 +399,8 @@ class BackendTests: XCTestCase {
         backend?.getSubscriberData(appUserID: userID) { _, _ in }
 
         backend?.getSubscriberData(appUserID: userID2) { _, _ in }
-
-        expect(self.httpClient.calls.count).to(equal(2))
+        
+        expect(self.httpClient.calls.count).toEventually(equal(2))
     }
 
     func testPostsReceiptDataWithProductRequestDataCorrectly() {
@@ -452,7 +452,7 @@ class BackendTests: XCTestCase {
                                        body: body,
                                        headers: ["Authorization": "Bearer " + apiKey])
 
-        expect(self.httpClient.calls.count).to(equal(1))
+        expect(self.httpClient.calls.count).toEventually(equal(1))
 
         if self.httpClient.calls.count > 0 {
             let call = self.httpClient.calls[0]
@@ -486,7 +486,7 @@ class BackendTests: XCTestCase {
             completionCalled = true
         })
 
-        expect(self.httpClient.calls.count).to(equal(1))
+        expect(self.httpClient.calls.count).toEventually(equal(1))
         expect(completionCalled).toEventually(beTrue())
 
         let call = self.httpClient.calls[0]
@@ -626,7 +626,7 @@ class BackendTests: XCTestCase {
 
         backend?.getSubscriberData(appUserID: userID) { _, _ in }
 
-        expect(self.httpClient.calls.count).to(equal(1))
+        expect(self.httpClient.calls.count).toEventually(equal(1))
 
         if self.httpClient.calls.count > 0 {
             let call = self.httpClient.calls[0]
@@ -975,8 +975,8 @@ class BackendTests: XCTestCase {
             completionCalled = true
         })
 
-        expect(self.httpClient.calls.count).to(equal(1))
-
+        expect(self.httpClient.calls.count).toEventually(equal(1))
+    
         let call = self.httpClient.calls[0]
 
         XCTAssertEqual(call.path, "/subscribers/" + userID + "/alias")
@@ -998,7 +998,7 @@ class BackendTests: XCTestCase {
         backend?.createAlias(appUserID: userID, newAppUserID: "new_alias", completion: {_ in })
         backend?.createAlias(appUserID: userID, newAppUserID: "new_alias", completion: {_ in })
 
-        expect(self.httpClient.calls.count).to(equal(1))
+        expect(self.httpClient.calls.count).toEventually(equal(1))
     }
 
     func testCreateAliasDoesntCacheForDifferentNewUserID() {
@@ -1008,7 +1008,7 @@ class BackendTests: XCTestCase {
         backend?.createAlias(appUserID: userID, newAppUserID: "new_alias", completion: {_ in })
         backend?.createAlias(appUserID: userID, newAppUserID: "another_new_alias", completion: {_ in })
 
-        expect(self.httpClient.calls.count).to(equal(2))
+        expect(self.httpClient.calls.count).toEventually(equal(2))
     }
 
     func testCreateAliasCachesWhenCallbackNil() {
@@ -1018,7 +1018,7 @@ class BackendTests: XCTestCase {
         backend?.createAlias(appUserID: userID, newAppUserID: "new_alias", completion: nil)
         backend?.createAlias(appUserID: userID, newAppUserID: "new_alias", completion: { _ in })
 
-        expect(self.httpClient.calls.count).to(equal(1))
+        expect(self.httpClient.calls.count).toEventually(equal(1))
     }
 
     func testCreateAliasCallsAllCompletionBlocksInCache() {
@@ -1036,7 +1036,7 @@ class BackendTests: XCTestCase {
             completion2Called = true
         })
 
-        expect(self.httpClient.calls.count).to(equal(1))
+        expect(self.httpClient.calls.count).toEventually(equal(1))
         expect(completion1Called).toEventually(beTrue())
         expect(completion2Called).toEventually(beTrue())
     }
@@ -1054,7 +1054,7 @@ class BackendTests: XCTestCase {
         httpClient.mock(requestPath: "/subscribers/" + currentAppUserID2 + "/alias", response: response)
         backend?.createAlias(appUserID: currentAppUserID2, newAppUserID: newAppUserID, completion: {_ in })
 
-        expect(self.httpClient.calls.count).to(equal(2))
+        expect(self.httpClient.calls.count).toEventually(equal(2))
     }
 
     func testNetworkErrorIsForwardedForCustomerInfoCalls() {
@@ -1241,7 +1241,7 @@ class BackendTests: XCTestCase {
             completionCalled += 1
         })
 
-        expect(self.httpClient.calls.count).to(equal(2))
+        expect(self.httpClient.calls.count).toEventually(equal(2))
         expect(completionCalled).toEventually(equal(2))
     }
 
@@ -1310,9 +1310,9 @@ class BackendTests: XCTestCase {
                                        body: body,
                                        headers: ["Authorization": "Bearer " + apiKey])
         }
-
-        expect(self.httpClient.calls.count).to(equal(1))
-
+        
+        expect(self.httpClient.calls.count).toEventually(equal(1))
+        
         if self.httpClient.calls.count > 0 {
             let call = self.httpClient.calls[0]
 
@@ -1600,7 +1600,7 @@ class BackendTests: XCTestCase {
             completionCalled += 1
         })
 
-        expect(self.httpClient.calls.count).to(equal(2))
+        expect(self.httpClient.calls.count).toEventually(equal(2))
         expect(completionCalled).toEventually(equal(2))
     }
 

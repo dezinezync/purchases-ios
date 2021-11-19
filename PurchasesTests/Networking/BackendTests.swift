@@ -235,8 +235,9 @@ class BackendTests: XCTestCase {
             completionCalled += 1
         })
 
-        expect(self.httpClient.calls.count).toEventually(equal(1))
         expect(completionCalled).toEventually(equal(2))
+        expect(self.httpClient.calls.count).toEventually(equal(1))
+
     }
 
     func testDoesntCacheForDifferentRestore() {
@@ -1034,7 +1035,7 @@ class BackendTests: XCTestCase {
         })
         backend?.createAlias(appUserID: userID, newAppUserID: "new_alias", completion: { (_) in
             completion2Called = true
-        })
+        }
 
         expect(self.httpClient.calls.count).toEventually(equal(1))
         expect(completion1Called).toEventually(beTrue())
@@ -1049,10 +1050,12 @@ class BackendTests: XCTestCase {
         let response = HTTPResponse(statusCode: 200, response: nil, error: nil)
 
         httpClient.mock(requestPath: "/subscribers/" + currentAppUserID1 + "/alias", response: response)
-        backend?.createAlias(appUserID: currentAppUserID1, newAppUserID: newAppUserID, completion: {_ in })
+        backend?.createAlias(appUserID: currentAppUserID1, newAppUserID: newAppUserID) { _ in
+            self.simulateNetworkDelay()
+        }
 
         httpClient.mock(requestPath: "/subscribers/" + currentAppUserID2 + "/alias", response: response)
-        backend?.createAlias(appUserID: currentAppUserID2, newAppUserID: newAppUserID, completion: {_ in })
+        backend?.createAlias(appUserID: currentAppUserID2, newAppUserID: newAppUserID) { _ in }
 
         expect(self.httpClient.calls.count).toEventually(equal(2))
     }

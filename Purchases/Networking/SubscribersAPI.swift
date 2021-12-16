@@ -46,12 +46,13 @@ class SubscribersAPI {
     }
 
     func getSubscriberData(appUserID: String, completion: @escaping BackendCustomerInfoResponseHandler) {
-        let config = NetworkOperation.Configuration(httpClient: self.httpClient, authHeaders: self.authHeaders)
+        let config = NetworkOperation.UserSpecificConfiguration(httpClient: self.httpClient,
+                                                                authHeaders: self.authHeaders,
+                                                                appUserID: appUserID)
         let operation = GetSubscriberDataOperation(configuration: config,
+                                                   completion: completion,
                                                    customerInfoCallbackCache: self.customerInfoCallbackCache)
-        operationQueue.addOperation {
-            operation.getSubscriberData(appUserID: appUserID, completion: completion)
-        }
+        operationQueue.addOperation(operation)
     }
 
     func post(subscriberAttributes: SubscriberAttributeDict,

@@ -17,10 +17,15 @@ class GetSubscriberDataOperation: NetworkOperation {
 
     private let customerInfoResponseHandler: CustomerInfoResponseHandler
     private let customerInfoCallbackCache: CallbackCache<CustomerInfoCallback>
+    private let configuration: UserSpecificConfiguration
+    private let completion: BackendCustomerInfoResponseHandler
 
-    init(configuration: Configuration,
+    init(configuration: UserSpecificConfiguration,
+         completion: @escaping BackendCustomerInfoResponseHandler,
          customerInfoResponseHandler: CustomerInfoResponseHandler = CustomerInfoResponseHandler(),
          customerInfoCallbackCache: CallbackCache<CustomerInfoCallback>) {
+        self.configuration = configuration
+        self.completion = completion
         self.customerInfoResponseHandler = customerInfoResponseHandler
         self.customerInfoCallbackCache = customerInfoCallbackCache
 
@@ -41,11 +46,7 @@ class GetSubscriberDataOperation: NetworkOperation {
 
         httpClient.performGETRequest(serially: true,
                                      path: path,
-                                     headers: authHeaders) {  [weak self] (statusCode, response, error) in
-            guard let self = self else {
-                return
-            }
-
+                                     headers: authHeaders) { statusCode, response, error in
             self.customerInfoCallbackCache.performOnAllItemsAndRemoveFromCache(withKey: path) { callbackObject in
                 self.customerInfoResponseHandler.handle(customerInfoResponse: response,
                                                         statusCode: statusCode,
@@ -53,6 +54,14 @@ class GetSubscriberDataOperation: NetworkOperation {
                                                         completion: callbackObject.callback)
             }
         }
+    }
+
+    override func main() {
+        if self.isCancelled {
+            return
+        }
+
+        self.getSubscriberData(appUserID: self.configuration.appUserID, completion: self.completion)
     }
 
 }

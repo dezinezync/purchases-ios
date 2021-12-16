@@ -40,7 +40,7 @@ class CustomerInfoResponseHandler {
         if !isErrorStatusCode {
             // Only attempt to parse a response if we don't have an error status code from the backend.
             do {
-                maybeCustomerInfo = try parseCustomerInfo(fromMaybeResponse: maybeResponse)
+                maybeCustomerInfo = try CustomerInfo.customerInfo(fromJSON: maybeResponse)
                 maybeCustomerInfoError = nil
             } catch let customerInfoError {
                 maybeCustomerInfo = nil
@@ -85,21 +85,6 @@ class CustomerInfoResponseHandler {
         }
 
         completion(maybeCustomerInfo, nil)
-    }
-
-    func parseCustomerInfo(fromMaybeResponse maybeResponse: [String: Any]?) throws -> CustomerInfo {
-        guard let customerJson = maybeResponse else {
-            throw UnexpectedBackendResponseSubErrorCode.customerInfoResponseMalformed
-        }
-
-        do {
-            return try CustomerInfo(data: customerJson)
-        } catch {
-            let parsingError = UnexpectedBackendResponseSubErrorCode.customerInfoResponseParsing
-            let subError = parsingError.addingUnderlyingError(error,
-                                                              extraContext: customerJson.stringRepresentation)
-            throw subError
-        }
     }
 
 }

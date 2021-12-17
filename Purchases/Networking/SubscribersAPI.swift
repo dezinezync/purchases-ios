@@ -58,11 +58,13 @@ class SubscribersAPI {
     func post(subscriberAttributes: SubscriberAttributeDict,
               appUserID: String,
               completion: PostRequestResponseHandler?) {
-        let config = NetworkOperation.Configuration(httpClient: self.httpClient, authHeaders: self.authHeaders)
-        let operation = PostSubscriberAttributesOperation(configuration: config)
-        operationQueue.addOperation {
-            operation.post(subscriberAttributes: subscriberAttributes, appUserID: appUserID, completion: completion)
-        }
+        let config = NetworkOperation.UserSpecificConfiguration(httpClient: self.httpClient,
+                                                                authHeaders: self.authHeaders,
+                                                                appUserID: appUserID)
+        let operation = PostSubscriberAttributesOperation(configuration: config,
+                                                          subscriberAttributes: subscriberAttributes,
+                                                          completion: completion)
+        operationQueue.addOperation(operation)
     }
 
     // swiftlint:disable:next function_parameter_count

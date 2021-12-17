@@ -32,6 +32,7 @@ class CreateAliasOperation: NetworkOperation {
         self.newAppUserID = newAppUserID
         self.maybeCompletion = maybeCompletion
         self.configuration = configuration
+
         super.init(configuration: configuration)
     }
 

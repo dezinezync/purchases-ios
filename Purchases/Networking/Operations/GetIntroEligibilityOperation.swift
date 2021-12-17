@@ -15,6 +15,34 @@ import Foundation
 
 class GetIntroEligibilityOperation: NetworkOperation {
 
+    let configuration: UserSpecificConfiguration
+    let receiptData: Data
+    let productIdentifiers: [String]
+    let completion: IntroEligibilityResponseHandler
+
+    init(configuration: UserSpecificConfiguration,
+         receiptData: Data,
+         productIdentifiers: [String],
+         completion: @escaping IntroEligibilityResponseHandler) {
+        self.configuration = configuration
+        self.receiptData = receiptData
+        self.productIdentifiers = productIdentifiers
+        self.completion = completion
+
+        super.init(configuration: configuration)
+    }
+
+    override func main() {
+        if self.isCancelled {
+            return
+        }
+
+        self.getIntroEligibility(appUserID: self.configuration.appUserID,
+                                 receiptData: self.receiptData,
+                                 productIdentifiers: self.productIdentifiers,
+                                 completion: self.completion)
+    }
+
     func getIntroEligibility(appUserID: String,
                              receiptData: Data,
                              productIdentifiers: [String],

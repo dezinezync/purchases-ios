@@ -158,14 +158,14 @@ class Backend {
                              receiptData: Data,
                              productIdentifiers: [String],
                              completion: @escaping IntroEligibilityResponseHandler) {
-        let config = NetworkOperation.Configuration(httpClient: self.httpClient, authHeaders: self.authHeaders)
-        let getIntroEligibilityOperation = GetIntroEligibilityOperation(configuration: config)
-        self.operationQueue.addOperation {
-            getIntroEligibilityOperation.getIntroEligibility(appUserID: appUserID,
-                                                             receiptData: receiptData,
-                                                             productIdentifiers: productIdentifiers,
-                                                             completion: completion)
-        }
+        let config = NetworkOperation.UserSpecificConfiguration(httpClient: self.httpClient,
+                                                                authHeaders: self.authHeaders,
+                                                                appUserID: appUserID)
+        let getIntroEligibilityOperation = GetIntroEligibilityOperation(configuration: config,
+                                                                        receiptData: receiptData,
+                                                                        productIdentifiers: productIdentifiers,
+                                                                        completion: completion)
+        self.operationQueue.addOperation(getIntroEligibilityOperation)
     }
 
 }

@@ -15,42 +15,64 @@ import Foundation
 
 class PostReceiptDataOperation: NetworkOperation {
 
+    struct PostData {
+
+        let receiptData: Data
+        let isRestore: Bool
+        let productInfo: ProductInfo?
+        let presentedOfferingIdentifier: String?
+        let observerMode: Bool
+        let subscriberAttributesByKey: SubscriberAttributeDict?
+
+    }
+
+    private let postData: PostData
+    private let configuration: AppUserConfiguration
+    private let completion: BackendCustomerInfoResponseHandler
     private let subscriberAttributesMarshaller: SubscriberAttributesMarshaller
     private let customerInfoResponseHandler: CustomerInfoResponseHandler
     private let customerInfoCallbackCache: CallbackCache<CustomerInfoCallback>
 
-    init(configuration: Configuration,
+    init(configuration: UserSpecificConfiguration,
+         postData: PostData,
+         completion: @escaping BackendCustomerInfoResponseHandler,
          subscriberAttributesMarshaller: SubscriberAttributesMarshaller = SubscriberAttributesMarshaller(),
          customerInfoResponseHandler: CustomerInfoResponseHandler = CustomerInfoResponseHandler(),
          customerInfoCallbackCache: CallbackCache<CustomerInfoCallback>) {
         self.subscriberAttributesMarshaller = subscriberAttributesMarshaller
         self.customerInfoResponseHandler = customerInfoResponseHandler
         self.customerInfoCallbackCache = customerInfoCallbackCache
+        self.postData = postData
+        self.configuration = configuration
+        self.completion = completion
 
         super.init(configuration: configuration)
     }
 
-    // swiftlint:disable:next function_parameter_count
-    func post(receiptData: Data,
+    override func main() {
+        if self.isCancelled {
+            return
+        }
+
+        self.post(postData: self.postData, appUserID: self.configuration.appUserID, completion: self.completion)
+    }
+
+    func post(postData: PostData,
               appUserID: String,
-              isRestore: Bool,
-              productInfo: ProductInfo?,
-              presentedOfferingIdentifier offeringIdentifier: String?,
-              observerMode: Bool,
-              subscriberAttributes subscriberAttributesByKey: SubscriberAttributeDict?,
               completion: @escaping BackendCustomerInfoResponseHandler) {
-        let fetchToken = receiptData.asFetchToken
+        let fetchToken = postData.receiptData.asFetchToken
         var body: [String: Any] = [
             "fetch_token": fetchToken,
             "app_user_id": appUserID,
-            "is_restore": isRestore,
-            "observer_mode": observerMode
+            "is_restore": postData.isRestore,
+            "observer_mode": postData.observerMode
         ]
 
         let cacheKey =
         """
-        \(appUserID)-\(isRestore)-\(fetchToken)-\(productInfo?.cacheKey ?? "")
-        -\(offeringIdentifier ?? "")-\(observerMode)-\(subscriberAttributesByKey?.debugDescription ?? "")"
+        \(appUserID)-\(postData.isRestore)-\(fetchToken)-\(postData.productInfo?.cacheKey ?? "")
+        -\(postData.presentedOfferingIdentifier ?? "")-\(postData.observerMode)
+        -\(postData.subscriberAttributesByKey?.debugDescription ?? "")"
         """
 
         let callbackObject = CustomerInfoCallback(key: cacheKey, callback: completion)
@@ -58,17 +80,17 @@ class PostReceiptDataOperation: NetworkOperation {
             return
         }
 
-        if let productInfo = productInfo {
+        if let productInfo = postData.productInfo {
             body.merge(productInfo.asDictionary()) { _, new in new }
         }
 
-        if let subscriberAttributesByKey = subscriberAttributesByKey {
+        if let subscriberAttributesByKey = postData.subscriberAttributesByKey {
             let attributesInBackendFormat = self.subscriberAttributesMarshaller
                 .subscriberAttributesToDict(subscriberAttributes: subscriberAttributesByKey)
             body["attributes"] = attributesInBackendFormat
         }
 
-        if let offeringIdentifier = offeringIdentifier {
+        if let offeringIdentifier = postData.presentedOfferingIdentifier {
             body["presented_offering_identifier"] = offeringIdentifier
         }
 

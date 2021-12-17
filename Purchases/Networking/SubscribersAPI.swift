@@ -76,19 +76,20 @@ class SubscribersAPI {
               observerMode: Bool,
               subscriberAttributes subscriberAttributesByKey: SubscriberAttributeDict?,
               completion: @escaping BackendCustomerInfoResponseHandler) {
-        let config = NetworkOperation.Configuration(httpClient: self.httpClient, authHeaders: self.authHeaders)
-        let operation = PostReceiptDataOperation(configuration: config,
-                                                 customerInfoCallbackCache: self.customerInfoCallbackCache)
-        operationQueue.addOperation {
-            operation.post(receiptData: receiptData,
-                           appUserID: appUserID,
-                           isRestore: isRestore,
-                           productInfo: productInfo,
-                           presentedOfferingIdentifier: offeringIdentifier,
-                           observerMode: observerMode,
-                           subscriberAttributes: subscriberAttributesByKey,
-                           completion: completion)
-        }
+        let config = NetworkOperation.UserSpecificConfiguration(httpClient: self.httpClient,
+                                                                authHeaders: self.authHeaders,
+                                                                appUserID: appUserID)
+        let postData = PostReceiptDataOperation.PostData(receiptData: receiptData,
+                                                         isRestore: isRestore,
+                                                         productInfo: productInfo,
+                                                         presentedOfferingIdentifier: offeringIdentifier,
+                                                         observerMode: observerMode,
+                                                         subscriberAttributesByKey: subscriberAttributesByKey)
+        let postReceiptOperation = PostReceiptDataOperation(configuration: config,
+                                                            postData: postData,
+                                                            completion: completion,
+                                                            customerInfoCallbackCache: self.customerInfoCallbackCache)
+        operationQueue.addOperation(postReceiptOperation)
     }
 
 }

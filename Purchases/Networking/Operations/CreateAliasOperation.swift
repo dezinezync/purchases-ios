@@ -15,12 +15,12 @@ import Foundation
 
 class CreateAliasOperation: NetworkOperation {
 
-    let aliasCallbackCache: CallbackCache<AliasCallback>
-    let createAliasResponseHandler: PostAttributionDataResponseHandler
+    private let aliasCallbackCache: CallbackCache<AliasCallback>
+    private let createAliasResponseHandler: PostAttributionDataResponseHandler
 
-    let newAppUserID: String
-    let maybeCompletion: PostRequestResponseHandler?
-    let configuration: UserSpecificConfiguration
+    private let newAppUserID: String
+    private let maybeCompletion: PostRequestResponseHandler?
+    private let configuration: UserSpecificConfiguration
 
     init(configuration: UserSpecificConfiguration,
          newAppUserID: String,

@@ -146,12 +146,13 @@ class Backend {
     }
 
     func getOfferings(appUserID: String, completion: @escaping OfferingsResponseHandler) {
-        let config = NetworkOperation.Configuration(httpClient: self.httpClient, authHeaders: self.authHeaders)
+        let config = NetworkOperation.UserSpecificConfiguration(httpClient: self.httpClient,
+                                                                authHeaders: self.authHeaders,
+                                                                appUserID: appUserID)
         let getOfferingsOperation = GetOfferingsOperation(configuration: config,
+                                                          completion: completion,
                                                           offeringsCallbackCache: self.offeringsCallbacksCache)
-        self.operationQueue.addOperation {
-            getOfferingsOperation.getOfferings(appUserID: appUserID, completion: completion)
-        }
+        self.operationQueue.addOperation(getOfferingsOperation)
     }
 
     func getIntroEligibility(appUserID: String,

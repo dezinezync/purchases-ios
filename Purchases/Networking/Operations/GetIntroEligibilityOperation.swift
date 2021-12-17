@@ -15,10 +15,10 @@ import Foundation
 
 class GetIntroEligibilityOperation: NetworkOperation {
 
-    let configuration: UserSpecificConfiguration
-    let receiptData: Data
-    let productIdentifiers: [String]
-    let completion: IntroEligibilityResponseHandler
+    private let configuration: UserSpecificConfiguration
+    private let receiptData: Data
+    private let productIdentifiers: [String]
+    private let completion: IntroEligibilityResponseHandler
 
     init(configuration: UserSpecificConfiguration,
          receiptData: Data,

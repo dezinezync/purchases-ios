@@ -16,11 +16,25 @@ import Foundation
 class GetOfferingsOperation: NetworkOperation {
 
     private let offeringsCallbackCache: CallbackCache<OfferingsCallback>
+    private let configuration: AppUserConfiguration
+    private let completion: OfferingsResponseHandler
 
-    init(configuration: Configuration, offeringsCallbackCache: CallbackCache<OfferingsCallback>) {
+    init(configuration: UserSpecificConfiguration,
+         completion: @escaping OfferingsResponseHandler,
+         offeringsCallbackCache: CallbackCache<OfferingsCallback>) {
+        self.configuration = configuration
+        self.completion = completion
         self.offeringsCallbackCache = offeringsCallbackCache
 
         super.init(configuration: configuration)
+    }
+
+    override func main() {
+        if self.isCancelled {
+            return
+        }
+
+        self.getOfferings(appUserID: self.configuration.appUserID, completion: self.completion)
     }
 
     func getOfferings(appUserID: String, completion: @escaping OfferingsResponseHandler) {
@@ -37,12 +51,7 @@ class GetOfferingsOperation: NetworkOperation {
 
         httpClient.performGETRequest(serially: true,
                                      path: path,
-                                     headers: authHeaders) { [weak self] (statusCode, maybeResponse, maybeError) in
-            guard let self = self else {
-                Logger.debug(Strings.backendError.backend_deallocated)
-                return
-            }
-
+                                     headers: authHeaders) { statusCode, maybeResponse, maybeError in
             if maybeError == nil && statusCode < HTTPStatusCodes.redirect.rawValue {
                 self.offeringsCallbackCache.performOnAllItemsAndRemoveFromCache(withKey: path) { callbackObject in
                     callbackObject.callback(maybeResponse, nil)

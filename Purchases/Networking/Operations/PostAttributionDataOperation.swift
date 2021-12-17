@@ -15,11 +15,11 @@ import Foundation
 
 class PostAttributionDataOperation: NetworkOperation {
 
-    let configuration: UserSpecificConfiguration
-    let postAttributionDataResponseHandler: PostAttributionDataResponseHandler
-    let attributionData: [String: Any]
-    let network: AttributionNetwork
-    let maybeCompletion: PostRequestResponseHandler?
+    private let configuration: UserSpecificConfiguration
+    private let postAttributionDataResponseHandler: PostAttributionDataResponseHandler
+    private let attributionData: [String: Any]
+    private let network: AttributionNetwork
+    private let maybeCompletion: PostRequestResponseHandler?
 
     init(configuration: UserSpecificConfiguration,
          attributionData: [String: Any],

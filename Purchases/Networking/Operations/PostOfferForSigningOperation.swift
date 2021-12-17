@@ -15,6 +15,42 @@ import Foundation
 
 class PostOfferForSigningOperation: NetworkOperation {
 
+    private let configuration: UserSpecificConfiguration
+    private let offerIdentifier: String
+    private let productIdentifier: String
+    private let subscriptionGroup: String
+    private let receiptData: Data
+    private let completion: OfferSigningResponseHandler
+
+    init(configuration: UserSpecificConfiguration,
+         offerIdForSigning offerIdentifier: String,
+         productIdentifier: String,
+         subscriptionGroup: String,
+         receiptData: Data,
+         completion: @escaping OfferSigningResponseHandler) {
+        self.configuration = configuration
+        self.offerIdentifier = offerIdentifier
+        self.productIdentifier = productIdentifier
+        self.subscriptionGroup = subscriptionGroup
+        self.receiptData = receiptData
+        self.completion = completion
+
+        super.init(configuration: configuration)
+    }
+
+    override func main() {
+        if self.isCancelled {
+            return
+        }
+
+        self.post(offerIdForSigning: self.offerIdentifier,
+                  productIdentifier: self.productIdentifier,
+                  subscriptionGroup: self.subscriptionGroup,
+                  receiptData: self.receiptData,
+                  appUserID: self.configuration.appUserID,
+                  completion: self.completion)
+    }
+
     // swiftlint:disable:next function_parameter_count function_body_length
     func post(offerIdForSigning offerIdentifier: String,
               productIdentifier: String,

@@ -107,16 +107,16 @@ class Backend {
               receiptData: Data,
               appUserID: String,
               completion: @escaping OfferSigningResponseHandler) {
-        let config = NetworkOperation.Configuration(httpClient: self.httpClient, authHeaders: self.authHeaders)
-        let postOfferForSigningOperation = PostOfferForSigningOperation(configuration: config)
-        self.operationQueue.addOperation {
-            postOfferForSigningOperation.post(offerIdForSigning: offerIdentifier,
-                                              productIdentifier: productIdentifier,
-                                              subscriptionGroup: subscriptionGroup,
-                                              receiptData: receiptData,
-                                              appUserID: appUserID,
-                                              completion: completion)
-        }
+        let config = NetworkOperation.UserSpecificConfiguration(httpClient: self.httpClient,
+                                                                authHeaders: self.authHeaders,
+                                                                appUserID: appUserID)
+        let postOfferForSigningOperation = PostOfferForSigningOperation(configuration: config,
+                                                                        offerIdForSigning: offerIdentifier,
+                                                                        productIdentifier: productIdentifier,
+                                                                        subscriptionGroup: subscriptionGroup,
+                                                                        receiptData: receiptData,
+                                                                        completion: completion)
+        self.operationQueue.addOperation(postOfferForSigningOperation)
     }
 
     func post(attributionData: [String: Any],

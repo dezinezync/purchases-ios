@@ -136,13 +136,14 @@ class Backend {
     func logIn(currentAppUserID: String,
                newAppUserID: String,
                completion: @escaping LogInResponseHandler) {
-        let config = NetworkOperation.Configuration(httpClient: self.httpClient, authHeaders: self.authHeaders)
+        let config = NetworkOperation.UserSpecificConfiguration(httpClient: self.httpClient,
+                                                                authHeaders: self.authHeaders,
+                                                                appUserID: currentAppUserID)
         let loginOperation = LogInOperation(configuration: config,
+                                            newAppUserID: newAppUserID,
+                                            completion: completion,
                                             loginCallbackCache: self.logInCallbacksCache)
-        self.operationQueue.addOperation {
-            loginOperation.logIn(currentAppUserID: currentAppUserID, newAppUserID: newAppUserID, completion: completion)
-        }
-
+        self.operationQueue.addOperation(loginOperation)
     }
 
     func getOfferings(appUserID: String, completion: @escaping OfferingsResponseHandler) {

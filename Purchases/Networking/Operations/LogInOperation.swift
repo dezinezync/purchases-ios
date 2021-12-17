@@ -16,11 +16,30 @@ import Foundation
 class LogInOperation: NetworkOperation {
 
     private let loginCallbackCache: CallbackCache<LogInCallback>
+    private let configuration: UserSpecificConfiguration
+    private let newAppUserID: String
+    private let completion: LogInResponseHandler
 
-    init(configuration: Configuration, loginCallbackCache: CallbackCache<LogInCallback>) {
+    init(configuration: UserSpecificConfiguration,
+         newAppUserID: String,
+         completion: @escaping LogInResponseHandler,
+         loginCallbackCache: CallbackCache<LogInCallback>) {
+        self.configuration = configuration
+        self.newAppUserID = newAppUserID
+        self.completion = completion
         self.loginCallbackCache = loginCallbackCache
 
         super.init(configuration: configuration)
+    }
+
+    override func main() {
+        if self.isCancelled {
+            return
+        }
+
+        self.logIn(currentAppUserID: self.configuration.appUserID,
+                   newAppUserID: self.newAppUserID,
+                   completion: self.completion)
     }
 
     func logIn(currentAppUserID: String,

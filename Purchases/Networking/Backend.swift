@@ -47,7 +47,6 @@ class Backend {
 
     required init(httpClient: HTTPClient, apiKey: String) {
         self.operationQueue = OperationQueue()
-        self.operationQueue.maxConcurrentOperationCount = 1
         self.operationQueue.name = "Backend Queue"
 
         self.httpClient = httpClient

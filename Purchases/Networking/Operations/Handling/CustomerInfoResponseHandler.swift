@@ -27,9 +27,11 @@ class CustomerInfoResponseHandler {
                 maybeError: Error?,
                 file: String = #fileID,
                 function: String = #function,
+                line: UInt = #line,
                 completion: BackendCustomerInfoResponseHandler) {
         if let error = maybeError {
-            completion(nil, ErrorUtils.networkError(withUnderlyingError: error, generatedBy: "\(file) \(function)"))
+            completion(nil, ErrorUtils.networkError(withUnderlyingError: error,
+                                                    fileName: file, functionName: function, line: line))
             return
         }
         let isErrorStatusCode = statusCode >= HTTPStatusCodes.redirect.rawValue
@@ -54,8 +56,8 @@ class CustomerInfoResponseHandler {
         if !isErrorStatusCode && maybeCustomerInfo == nil {
             let extraContext = "statusCode: \(statusCode), json:\(maybeResponse.debugDescription)"
             completion(nil, ErrorUtils.unexpectedBackendResponse(withSubError: maybeCustomerInfoError,
-                                                                 generatedBy: "\(file) \(function)",
-                                                                 extraContext: extraContext))
+                                                                 extraContext: extraContext,
+                                                                 fileName: file, functionName: function, line: line))
             return
         }
 

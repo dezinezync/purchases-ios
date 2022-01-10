@@ -197,22 +197,7 @@ class PurchasesOrchestrator {
         // swiftlint disable for length warning
         if #available(iOS 15.0, tvOS 15.0, watchOS 8.0, macOS 12.0, *),
            let product = package.storeProduct.sk2Product {
-            _ = Task<Void, Never> {
-                let result = await purchase(sk2Product: product)
-                DispatchQueue.main.async {
-                    switch result {
-                    case .failure(let error):
-                        completion(nil, nil, ErrorUtils.purchasesError(withStoreKitError: error), false)
-                    case .success(let (customerInfo, userCancelled)):
-                        // todo: change API and send transaction
-                        if userCancelled {
-                            completion(nil, nil, ErrorUtils.purchaseCancelledError(), userCancelled)
-                        } else {
-                            completion(nil, customerInfo, nil, userCancelled)
-                        }
-                    }
-                }
-            }
+            self.purchase(sk2Product: product, completion: completion)
         } else {
             guard let product = package.storeProduct.sk1Product else {
                 fatalError("could not identify StoreKit version to use! StoreProduct: \(package.storeProduct)")
@@ -268,6 +253,26 @@ class PurchasesOrchestrator {
         }
         purchaseCompleteCallbacksByProductID[productIdentifier] = completion
         storeKitWrapper.add(payment)
+    }
+
+    @available(iOS 15.0, tvOS 15.0, watchOS 8.0, macOS 12.0, *)
+    func purchase(sk2Product product: SK2Product, completion: @escaping PurchaseCompletedBlock) {
+        _ = Task<Void, Never> {
+            let result = await purchase(sk2Product: product)
+            DispatchQueue.main.async {
+                switch result {
+                case .failure(let error):
+                    completion(nil, nil, ErrorUtils.purchasesError(withStoreKitError: error), false)
+                case .success(let (customerInfo, userCancelled)):
+                    // todo: change API and send transaction
+                    if userCancelled {
+                        completion(nil, nil, ErrorUtils.purchaseCancelledError(), userCancelled)
+                    } else {
+                        completion(nil, customerInfo, nil, userCancelled)
+                    }
+                }
+            }
+        }
     }
 
 #if os(iOS) || os(macOS)

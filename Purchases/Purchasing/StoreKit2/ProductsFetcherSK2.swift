@@ -94,7 +94,6 @@ private extension ProductsFetcherSK2 {
         // Note: not using `Storefront.updates` because it's not currently possible
         // to avoid race conditions. Updates never arrive on time for tests to detect
         // changes and clear the cache.
-        // swiftlint:disable:next implicit_getter
         get async { await Storefront.current?.id }
     }
 

@@ -19,7 +19,7 @@ class PostReceiptDataOperation: NetworkOperation {
 
         let receiptData: Data
         let isRestore: Bool
-        let productInfo: ProductInfo?
+        let productData: ProductRequestData?
         let presentedOfferingIdentifier: String?
         let observerMode: Bool
         let subscriberAttributesByKey: SubscriberAttributeDict?
@@ -70,7 +70,7 @@ class PostReceiptDataOperation: NetworkOperation {
 
         let cacheKey =
         """
-        \(appUserID)-\(postData.isRestore)-\(fetchToken)-\(postData.productInfo?.cacheKey ?? "")
+        \(appUserID)-\(postData.isRestore)-\(fetchToken)-\(postData.productData?.cacheKey ?? "")
         -\(postData.presentedOfferingIdentifier ?? "")-\(postData.observerMode)
         -\(postData.subscriberAttributesByKey?.debugDescription ?? "")"
         """
@@ -80,8 +80,13 @@ class PostReceiptDataOperation: NetworkOperation {
             return
         }
 
-        if let productInfo = postData.productInfo {
-            body.merge(productInfo.asDictionary()) { _, new in new }
+        if let productData = postData.productData {
+            do {
+                body += try productData.asDictionary()
+            } catch {
+                completion(nil, error)
+                return
+            }
         }
 
         if let subscriberAttributesByKey = postData.subscriberAttributesByKey {

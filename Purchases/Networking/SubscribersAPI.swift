@@ -71,7 +71,7 @@ class SubscribersAPI {
     func post(receiptData: Data,
               appUserID: String,
               isRestore: Bool,
-              productInfo: ProductInfo?,
+              productData: ProductRequestData?,
               presentedOfferingIdentifier offeringIdentifier: String?,
               observerMode: Bool,
               subscriberAttributes subscriberAttributesByKey: SubscriberAttributeDict?,
@@ -81,7 +81,7 @@ class SubscribersAPI {
                                                                 appUserID: appUserID)
         let postData = PostReceiptDataOperation.PostData(receiptData: receiptData,
                                                          isRestore: isRestore,
-                                                         productInfo: productInfo,
+                                                         productData: productData,
                                                          presentedOfferingIdentifier: offeringIdentifier,
                                                          observerMode: observerMode,
                                                          subscriberAttributesByKey: subscriberAttributesByKey)

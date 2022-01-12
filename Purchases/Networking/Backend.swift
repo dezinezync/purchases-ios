@@ -84,7 +84,7 @@ class Backend {
         self.subscribersAPI.post(receiptData: receiptData,
                                  appUserID: appUserID,
                                  isRestore: isRestore,
-                                 productInfo: productInfo,
+                                 productData: productData,
                                  presentedOfferingIdentifier: offeringIdentifier,
                                  observerMode: observerMode,
                                  subscriberAttributes: subscriberAttributesByKey,

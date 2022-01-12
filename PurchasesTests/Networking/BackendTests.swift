@@ -341,7 +341,7 @@ class BackendTests: XCTestCase {
                       completion: { (_, _) in
             completionCalled += 1
         })
-        
+
         expect(self.httpClient.calls.count).toEventually(equal(2))
         expect(completionCalled).toEventually(equal(2))
     }
@@ -384,12 +384,12 @@ class BackendTests: XCTestCase {
     func testCachesSubscriberGetsForSameSubscriber() {
         let response = HTTPResponse(statusCode: 200, response: validSubscriberResponse, error: nil)
         httpClient.mock(requestPath: "/subscribers/" + userID, response: response)
-        
-        backend?.getSubscriberData(appUserID: userID) { _,_ in
+
+        backend?.getSubscriberData(appUserID: userID) { _, _ in
             self.simulateNetworkDelay()
         }
-        backend?.getSubscriberData(appUserID: userID) { _,_ in }
-        
+        backend?.getSubscriberData(appUserID: userID) { _, _ in }
+
         expect(self.httpClient.calls.count).toEventually(equal(1))
     }
 
@@ -402,7 +402,7 @@ class BackendTests: XCTestCase {
         backend?.getSubscriberData(appUserID: userID) { _, _ in }
 
         backend?.getSubscriberData(appUserID: userID2) { _, _ in }
-        
+
         expect(self.httpClient.calls.count).toEventually(equal(2))
     }
 
@@ -709,7 +709,7 @@ class BackendTests: XCTestCase {
         backend?.getIntroEligibility(appUserID: userID,
                                      receiptData: Data(),
                                      productIdentifiers: [],
-                                     completion: { (eligibilities, error) in
+                                     completion: { _, error in
             expect(error).to(beNil())
         })
         expect(self.httpClient.calls.count).to(equal(0))
@@ -772,7 +772,7 @@ class BackendTests: XCTestCase {
             expect(error).to(beNil())
             eligibility = productEligibility
         })
-        
+
         expect(eligibility).toEventuallyNot(beNil())
         expect(eligibility!["producta"]!.status).toEventually(equal(IntroEligibilityStatus.unknown))
         expect(eligibility!["productb"]!.status).toEventually(equal(IntroEligibilityStatus.unknown))
@@ -983,7 +983,7 @@ class BackendTests: XCTestCase {
         })
 
         expect(self.httpClient.calls.count).toEventually(equal(1))
-    
+
         let call = self.httpClient.calls[0]
 
         XCTAssertEqual(call.path, "/subscribers/" + userID + "/alias")
@@ -1014,7 +1014,10 @@ class BackendTests: XCTestCase {
         let response = HTTPResponse(statusCode: 200, response: nil, error: nil)
         httpClient.mock(requestPath: "/subscribers/" + userID + "/alias", response: response)
 
-        backend?.createAlias(appUserID: userID, newAppUserID: "new_alias") { _ in }
+        backend?.createAlias(appUserID: userID, newAppUserID: "new_alias") { _ in
+            self.simulateNetworkDelay()
+        }
+
         backend?.createAlias(appUserID: userID, newAppUserID: "another_new_alias") { _ in }
 
         expect(self.httpClient.calls.count).toEventually(equal(2))
@@ -1040,10 +1043,10 @@ class BackendTests: XCTestCase {
         var completion2Called = false
 
         backend?.createAlias(appUserID: userID, newAppUserID: "new_alias", completion: nil)
-        backend?.createAlias(appUserID: userID, newAppUserID: "new_alias", completion: { (_) in
+        backend?.createAlias(appUserID: userID, newAppUserID: "new_alias") { _ in
             completion1Called = true
-        })
-        backend?.createAlias(appUserID: userID, newAppUserID: "new_alias", completion: { (_) in
+        }
+        backend?.createAlias(appUserID: userID, newAppUserID: "new_alias") { _ in
             completion2Called = true
         }
 
@@ -1324,9 +1327,9 @@ class BackendTests: XCTestCase {
                                        body: body,
                                        headers: ["Authorization": "Bearer " + apiKey])
         }
-        
+
         expect(self.httpClient.calls.count).toEventually(equal(1))
-        
+
         if self.httpClient.calls.count > 0 {
             let call = self.httpClient.calls[0]
 
